@@ -1,0 +1,11 @@
+qt-5.6.1_vc14-include/A*
+qt-5.6.1_vc14-include/E*
+qt-5.6.1_vc14-include/Q*
+src/l*
+src/U*
+src/P*
+plug-ins*
+*.png
+*.ui
+*.pyc
+python/__init__.py
