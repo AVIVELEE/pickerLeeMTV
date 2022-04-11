@@ -3,14 +3,12 @@ import maya.OpenMayaUI as mui
 import os,sys
 from PySide2 import QtCore,QtGui,QtWidgets
 from shiboken2 import wrapInstance
-sys.path.append("C:/Users/LeePhan/Documents/GitHub/PhanLee-Picker/python")
+sys.path.append("C:/Users/LeePhan/Documents/GitHub/pickerLeeMTV/python")
 import imp
-if "mtl_gScene" in sys.modules:
-    imp.reload(sys.modules['mtl_gScene'])
-elif "mtl_gView" in sys.modules:
-    imp.reload(sys.modules['mtl_gView'])
+if "mtl_gTab" in sys.modules:
+    imp.reload(sys.modules['mtl_gTab'])
 from mtl_gScene import MTL_Scene
-from mtl_gView import MTL_View
+from mtl_gTab import MTL_View
 # from mtl_gScene import MTL_Scene
 # from mtl_gView import MTL_View
 
@@ -95,11 +93,19 @@ class Ui_MayaController(Ui_info):
         return cmds.pluginInfo("METALEEPICKER",q=True,l=True)
 mCTRL=Ui_MayaController()
 mCTRL.Ui_PathFile()
-gView=mCTRL.mWindowToQObject("METALEEPICKER_VIEWPANEL",QtWidgets.QGraphicsView)
-gView.setUpdatesEnabled(True)
-print("# METALEE : %s #"%gView.objectName())
-gScene=MTL_Scene(gView,"mtl_GraphicsScene")
-gView.setScene(gScene)
+mTab=mCTRL.mWindowToQObject("mainTab",QtWidgets.QWidget)
+gView=MTL_View(mTab,"abc")
+hLayout=mTab.findChild(QtWidgets.QHBoxLayout,"leeGraphics")
+hLayout.addWidget(gView)
+
+
+
+# aScene=QtWidgets.QGraphicsScene()
+# aut=QtGui.QImage("C:/Users/LeePhan/Documents/GitHub/pickerLeeMTV/icon/author1")
+# aScene.setBackgroundBrush(aut)
+# gView.setScene(aScene)
+# print("# METALEE : %s #"%gView.objectName())
+
 #mController.uiCreatePICKER("WS_METALEEPICKER_EDITOR","METALEE's PICKER","C:/Users/LeePhan/Documents/GitHub/PhanLee-Picker/src/METALEEPICKER.ui")
 # bar=toQtWidget("mainToolBar",QtWidgets.QToolBar)
 # abc=QtWidgets.QWidgetAction(bar)
