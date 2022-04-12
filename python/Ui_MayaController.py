@@ -3,11 +3,12 @@ import maya.OpenMayaUI as mui
 import os,sys
 from PySide2 import QtCore,QtGui,QtWidgets
 from shiboken2 import wrapInstance
-sys.path.append("C:/Users/LeePhan/Documents/GitHub/pickerLeeMTV/python")
+sys.path.append("C:/Users/%s/Documents/GitHub/pickerLeeMTV/python"%os.environ["USER"])
 import imp
 if "mtl_gTab" in sys.modules:
     imp.reload(sys.modules['mtl_gTab'])
-from mtl_gScene import MTL_Scene
+if "Ui_MayaController" in sys.modules:
+    imp.reload(sys.modules['Ui_MayaController'])
 from mtl_gTab import MTL_View
 # from mtl_gScene import MTL_Scene
 # from mtl_gView import MTL_View
@@ -15,7 +16,8 @@ from mtl_gTab import MTL_View
 class Ui_info(object):
     ws="WS_METALEEPICKER_EDITOR"
     wstitle="METALEE's PICKER"
-    filepath="C:\\Users\\LeePhan\\Documents/GitHub/PhanLee-Picker/ui/METALEEPICKER.ui"
+    user=os.environ["USER"]
+    filepath="C:/Users/%s/Documents/GitHub/pickerLeeMTV/src/METALEEPICKER.ui"%user
     def __init__(self):
         pass
 
@@ -23,9 +25,12 @@ class Ui_MayaController(Ui_info):
     def __init__(self):
         super(Ui_MayaController,self).__init__()
         inf=Ui_info
+        print(inf.filepath)
         if self.__PluginsIsLoaded():
             self.uiCreatePICKER(inf.ws,inf.wstitle,self.Ui_PathFile())
-        else : return cmds.error("# METALEE : METALEEPICKER Plugin is'nt loaeded #")
+        else : 
+            cmds.loadPlugin("C:/Users/%s/Documents/GitHub/pickerLeeMTV/plug-ins/METALEEPICKER"%self.user)
+            return cmds.error("# METALEE : METALEEPICKER Plugin is'nt loaeded #")
     #convert maya to Object
     def mWindowToQObject(self,MayaControl=str,QType=QtCore.QObject):
         if not MayaControl: return cmds.error("no control name")
@@ -85,9 +90,13 @@ class Ui_MayaController(Ui_info):
     def Ui_PathFile(self):
         if cmds.pluginInfo("METALEEPICKER",q=True,l=True):
             path=cmds.pluginInfo("METALEEPICKER",q=True,p=True)
-            path=str(path).replace("plug-ins/METALEEPICKER.mll","ui/METALEEPICKER.ui")
+            path=str(path).replace("plug-ins/METALEEPICKER.mll","src/METALEEPICKER.ui")
+            print(path)
+
             return path
-        else: return cmds.error("# METALEE : plug-ins METALEEPICKER isn't loaded. #")
+        else: 
+            print(path)
+            return cmds.error("# METALEE : plug-ins METALEEPICKER isn't loaded. #")
 
     def __PluginsIsLoaded(self):
         return cmds.pluginInfo("METALEEPICKER",q=True,l=True)
