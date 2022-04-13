@@ -9,6 +9,11 @@ if "mtl_gTab" in sys.modules:
     imp.reload(sys.modules['mtl_gTab'])
 if "Ui_MayaController" in sys.modules:
     imp.reload(sys.modules['Ui_MayaController'])
+
+if "mtl_gItem" in sys.modules:
+    imp.reload(sys.modules['mtl_gItem'])
+
+from mtl_gItem import mtl_GraphicsItem
 from mtl_gTab import MTL_View
 # from mtl_gScene import MTL_Scene
 # from mtl_gView import MTL_View
