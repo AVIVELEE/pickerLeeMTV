@@ -5,26 +5,36 @@ from PySide2.QtGui import *
 import sys,os,imp
 sys.path.append("C:/Users/%s/Documents/GitHub/pickerLeeMTV/python"%os.environ["USER"])
 
+if "mtl_GraphicsItem" in sys.modules:
+    imp.reload(sys.modules['mtl_GraphicsItem'])
 from mtl_gItem import mtl_GraphicsItem
 
 class MTL_View(QGraphicsView):
     def __init__(self,parent,name):
         #self.setScene(self._scene)
         QGraphicsView.__init__(self,parent,name)
-        #aut=QImage("C:/Users/LeePhan/Documents/GitHub/pickerLeeMTV/icon/author1")
+        aut=QImage("C:/Users/LeePhan/Documents/GitHub/pickerLeeMTV/icon/author1")
         self._scene=MTL_Scene()
         self.setScene(self._scene)
         #self._scene.setBackgroundBrush(aut)
         self.isMidle=False
         self.isLock=False
-        self.setMouseTracking(True)
+        #self.setMouseTracking(False)
         #self.installEventFilter(self)
+        self.setUpdatesEnabled(True)
+        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.setRubberBandSelectionMode(Qt.IntersectsItemBoundingRect)
+        self.setContextMenuPolicy(Qt.NoContextMenu)
+        self.setBackgroundBrush(aut)
+        self.setCacheMode(QGraphicsView.CacheBackground)
+        self.setRubberBandSelectionMode(Qt.IntersectsItemShape)
 
     def mouseMoveEvent(self,event=QMouseEvent):
         self.gCursor=event.pos()
         self.gScenePos=event.globalPos()
         #print("# METALEE : %d , 2log ->  %d #"%(decimal.Decimal(10),decimal.Decimal(5)))
-        print("Moving...")
+        #print("Moving...")
         if self.gScenePos and self.isMidle and not self.isLock:
             try:
                 #nRect=self.__deltaDrag()
@@ -37,6 +47,9 @@ class MTL_View(QGraphicsView):
     #mouse press event
     def mousePressEvent(self,event=QMouseEvent):
         if event.button()==Qt.LeftButton:
+            print("xyz : %s"%self._scene.selectedItems())
+            if self._scene.selectedItems() > 0:
+                self.setMouseTracking(True)
             print("# METALEE : left clicked #")
             pass #print("# METALEE : left clicked %s #"%self.press)
         elif event.button()==Qt.RightButton:
@@ -53,6 +66,7 @@ class MTL_View(QGraphicsView):
     #mouse release event
     def mouseReleaseEvent(self,event):
         if event.button()==Qt.LeftButton:
+            self.setMouseTracking(False)
             self.setDragMode(QGraphicsView.NoDrag)
             print("# METALEE : left release. #")
             pass 
@@ -63,7 +77,77 @@ class MTL_View(QGraphicsView):
             self.isMidle=False
         return QGraphicsView.mouseReleaseEvent(self,event)   
 
+class MTL_Scene(QGraphicsScene):
+    isLock=False
+    def __init__(self,parent=QWidget,name=None):
+        QGraphicsScene.__init__(self)
+        self.mouseGrabberItem()
+        aut=QImage("C:/Users/LeePhan/Documents/GitHub/pickerLeeMTV/icon/author1")
+        self.move=0
+        self.press="click.."
+        self.gScenePos=0.0
+        self.gCursor=0.0
+        self.gView=self.parent()
+        self.isMidle=False
+        self.isEnter="cccc.."
+        self.mouseGrabberItem()
+        #self.setDr()
+        print("# METALEE : %s #"%self.isEnter)
+        ##self.installEventFilter(self)
+        #lock scene
+        item=mtl_GraphicsItem()
+        self.addItem(item)
+        print("# METALEE : Scene is Created. #")
+        #self.setForegroundBrush(aut)
+
+        self.selectedItems()
     # def eventFilter(self,source,e):
+    #     if e.type()==QEvent.GraphicsSceneMouseMove:
+    #         print("moving..")
+    #     return QGraphicsScene.eventFilter(self,source,e)            
+        #event 
+        # if e.type()==QEvent.Leave:
+        #     print("leave...")
+        # elif e.type()==QEvent.Enter:
+        #     print("enter...")
+        # elif e.type()==QEvent.GraphicsSceneMouseMove:
+        #     self.gCursor=e.pos()
+        #     self.gScenePos=e.scenePos()
+        #     if self.gScenePos and self.isMidle and not self.isLock:
+        #         rX,rY=self.__deltaDrag()
+        #         rect=QRect()
+        #         rect.setX(round(rX,2))
+        #         rect.setY(round(rY,2))
+        #         maxsizeX=QMainWindow(self.activeWindow()).width()/2
+        #         maxsizeY=QMainWindow(self.activeWindow()).height()/2
+        #         if rect.size().width() < maxsizeX and rect.size().height() < maxsizeY:
+        #             self.setSceneRect(rect)
+        #     pass#print("move... %d "%self.move)
+        # elif e.type()==QEvent.GraphicsSceneMousePress:
+        #     if e.button()==Qt.LeftButton:
+        #         print("left click.")
+        #     if e.button()==Qt.RightButton:
+        #         print("right click.")
+        #     if e.button()==Qt.MidButton:
+        #         self.viewport().setCursor(Qt.ClosedHandCursor)
+        #         self.isMidle=True
+        #         print("midle click.")
+
+        #     #print("click..")
+        # elif e.type()==QEvent.GraphicsSceneMouseRelease:
+        #     if e.button()==Qt.LeftButton:
+        #         print("left release.")
+        #     if e.button()==Qt.RightButton:
+        #         print("right release.")
+        #     if e.button()==Qt.MidButton:
+        #         self.viewport().setCursor(Qt.ArrowCursor)
+        #         self.isMidle=False
+        #         print("midle release.")
+        # return QGraphicsScene.eventFilter(self,source,e)
+
+
+
+            # def eventFilter(self,source,e):
     #     #event 
     #     if e.type()==QEvent.Leave:
     #         print("leave...")
@@ -122,69 +206,3 @@ class MTL_View(QGraphicsView):
     #     # if newY !=0: self.gView.verticalScrollBar().setValue(nY)
     #     # if self.isActive(): print("# METALEE : is active #")
 
-
-class MTL_Scene(QGraphicsScene):
-    isLock=False
-    def __init__(self,parent=QWidget,name=None):
-        QGraphicsScene.__init__(self)
-        self.mouseGrabberItem()
-        aut=QImage("C:/Users/LeePhan/Documents/GitHub/pickerLeeMTV/icon/author1")
-        self.setForegroundBrush(aut)
-        self.move=0
-        self.press="click.."
-        self.gScenePos=0.0
-        self.gCursor=0.0
-        self.gView=self.parent()
-        self.isMidle=False
-        self.isEnter="cccc.."
-        self.mouseGrabberItem()
-        #self.setDr()
-        print("# METALEE : %s #"%self.isEnter)
-        ##self.installEventFilter(self)
-        #lock scene
-        item=mtl_GraphicsItem()
-        self.addItem(item)
-        print("# METALEE : Scene is Created. #")
-    # def eventFilter(self,source,e):
-    #     if e.type()==QEvent.GraphicsSceneMouseMove:
-    #         print("moving..")
-    #     return QGraphicsScene.eventFilter(self,source,e)            
-        #event 
-        # if e.type()==QEvent.Leave:
-        #     print("leave...")
-        # elif e.type()==QEvent.Enter:
-        #     print("enter...")
-        # elif e.type()==QEvent.GraphicsSceneMouseMove:
-        #     self.gCursor=e.pos()
-        #     self.gScenePos=e.scenePos()
-        #     if self.gScenePos and self.isMidle and not self.isLock:
-        #         rX,rY=self.__deltaDrag()
-        #         rect=QRect()
-        #         rect.setX(round(rX,2))
-        #         rect.setY(round(rY,2))
-        #         maxsizeX=QMainWindow(self.activeWindow()).width()/2
-        #         maxsizeY=QMainWindow(self.activeWindow()).height()/2
-        #         if rect.size().width() < maxsizeX and rect.size().height() < maxsizeY:
-        #             self.setSceneRect(rect)
-        #     pass#print("move... %d "%self.move)
-        # elif e.type()==QEvent.GraphicsSceneMousePress:
-        #     if e.button()==Qt.LeftButton:
-        #         print("left click.")
-        #     if e.button()==Qt.RightButton:
-        #         print("right click.")
-        #     if e.button()==Qt.MidButton:
-        #         self.viewport().setCursor(Qt.ClosedHandCursor)
-        #         self.isMidle=True
-        #         print("midle click.")
-
-        #     #print("click..")
-        # elif e.type()==QEvent.GraphicsSceneMouseRelease:
-        #     if e.button()==Qt.LeftButton:
-        #         print("left release.")
-        #     if e.button()==Qt.RightButton:
-        #         print("right release.")
-        #     if e.button()==Qt.MidButton:
-        #         self.viewport().setCursor(Qt.ArrowCursor)
-        #         self.isMidle=False
-        #         print("midle release.")
-        # return QGraphicsScene.eventFilter(self,source,e)
