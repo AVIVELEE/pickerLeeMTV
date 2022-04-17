@@ -1,3 +1,4 @@
+from turtle import bgcolor
 from PySide2.QtWidgets import *
 from PySide2.QtCore import *
 from PySide2.QtGui import *
@@ -18,7 +19,8 @@ class mtl_GraphicsItem(QGraphicsItem):
     textColor=Qt.white
     isHighLight=False
     down=1
-    isOpacDown=False    
+    isOpacDown=False
+    iBgrColor=QColor()  
     def __init__(self, parent = None,iName=None,img=None,ID=None):
         QGraphicsItem.__init__(self,parent)
         if iName: self.iName=iName
@@ -53,6 +55,9 @@ class mtl_GraphicsItem(QGraphicsItem):
             QTimer.singleShot(200, lambda: self.setOpacity(self.down))
         if self.down <=0:
             self.scene.removeItem(self)
+        
+        if self.iBgrColor:
+            painter.fillRect(self.iRect,self.iBgrColor)
         #return QGraphicsItem.paint(self,painter,options,widget)
 
     def hoverEnterEvent(self,event):

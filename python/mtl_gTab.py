@@ -13,8 +13,8 @@ if "mtl_GraphicsItem" in sys.modules:
     imp.reload(sys.modules['mtl_GraphicsItem'])
 if "mtl_Global" in sys.modules:
     imp.reload(sys.modules['mtl_Global'])
-if "mtlGlobal" in sys.modules:
-    imp.reload(sys.modules['mtlGlobal'])
+if "mtl_gItem" in sys.modules:
+    imp.reload(sys.modules['mtl_gItem'])
 from mtl_gGlobal import mtlGlobal    
 from mtl_gItem import mtl_GraphicsItem
 
@@ -148,7 +148,7 @@ class MTL_Scene(QGraphicsScene):
         item.iRect=QRect(0,0,478,952)
         self.addItem(item)
         #print("# METALEE : Scene is Created. #")
-        self.setColorAllItem()
+        #self.setColorAllItem()
         #self.setForegroundBrush(aut)
 
     def ToolBarConnection(self):
@@ -157,12 +157,11 @@ class MTL_Scene(QGraphicsScene):
         QAction.priority("ABC")
         aColor.triggered.connect(MTL.ColorDialog)
 
-
-    def setColorAllItem(self):
+    #set all item bgr Color
+    def setBGRColorAllItem(self,newColor=QColor):
         if len(self.items()) > 0:
             for n,item in enumerate(self.items()):
                 mtl=mtl_GraphicsItem(item)
-                if mtl:
-                    print("aday roi")
+                if mtl: mtl.iBgrColor=newColor
         #mtl_Global.info("abc")
 

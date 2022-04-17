@@ -46,14 +46,6 @@ class Ui_MayaController(Ui_info):
             cmds.loadPlugin("C:/Users/%s/Documents/GitHub/pickerLeeMTV/plug-ins/METALEEPICKER"%self.user)
             self.uiCreatePICKER(inf.ws,inf.wstitle,self.Ui_PathFile())
             return cmds.error("# METALEE : METALEEPICKER Plugin is'nt loaeded #")
-        
-    #convert maya to Object
-    # def mWindowToQObject(self,MayaControl=str,QType=QtCore.QObject):
-    #     if not MayaControl: return cmds.error("no control name")
-    #     control_widget = mui.MQtUtil.findControl(MayaControl)
-    #     control_wrap = wrapInstance(int(control_widget), QType)
-    #     return control_wrap
-
     #create maya workspaceControl window
     def workspaceCreate(self,wSpaceName=str,windowtitle=str):
         if cmds.workspaceControl(wSpaceName,ex=True):
