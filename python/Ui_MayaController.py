@@ -5,18 +5,26 @@ from PySide2 import QtCore,QtGui,QtWidgets
 from shiboken2 import wrapInstance
 sys.path.append("C:/Users/%s/Documents/GitHub/pickerLeeMTV/python"%os.environ["USER"])
 import imp
+
 if "mtl_gTab" in sys.modules:
     imp.reload(sys.modules['mtl_gTab'])
+    print("modules : mtl_gTab reloaded.")
 if "Ui_MayaController" in sys.modules:
     imp.reload(sys.modules['Ui_MayaController'])
-
+    print("modules : Ui_MayaController reloaded.")
 if "mtl_gItem" in sys.modules:
     imp.reload(sys.modules['mtl_gItem'])
+    print("modules : mtl_gItem reloaded.")
+if "mtl_gGlobal" in sys.modules:
+    imp.reload(sys.modules['mtl_gGlobal'])
+    print("modules : mtl_gGlobal reloaded.")
 
+from mtl_gGlobal import *
 from mtl_gItem import mtl_GraphicsItem
 from mtl_gTab import MTL_View
 # from mtl_gScene import MTL_Scene
 # from mtl_gView import MTL_View
+MTL=mtlGlobal()
 
 class Ui_info(object):
     ws="WS_METALEEPICKER_EDITOR"
@@ -30,18 +38,21 @@ class Ui_MayaController(Ui_info):
     def __init__(self):
         super(Ui_MayaController,self).__init__()
         inf=Ui_info
-        print(inf.filepath)
+        
+        #print(inf.filepath)
         if self.__PluginsIsLoaded():
             self.uiCreatePICKER(inf.ws,inf.wstitle,self.Ui_PathFile())
         else : 
             cmds.loadPlugin("C:/Users/%s/Documents/GitHub/pickerLeeMTV/plug-ins/METALEEPICKER"%self.user)
+            self.uiCreatePICKER(inf.ws,inf.wstitle,self.Ui_PathFile())
             return cmds.error("# METALEE : METALEEPICKER Plugin is'nt loaeded #")
+        
     #convert maya to Object
-    def mWindowToQObject(self,MayaControl=str,QType=QtCore.QObject):
-        if not MayaControl: return cmds.error("no control name")
-        control_widget = mui.MQtUtil.findControl(MayaControl)
-        control_wrap = wrapInstance(int(control_widget), QType)
-        return control_wrap
+    # def mWindowToQObject(self,MayaControl=str,QType=QtCore.QObject):
+    #     if not MayaControl: return cmds.error("no control name")
+    #     control_widget = mui.MQtUtil.findControl(MayaControl)
+    #     control_wrap = wrapInstance(int(control_widget), QType)
+    #     return control_wrap
 
     #create maya workspaceControl window
     def workspaceCreate(self,wSpaceName=str,windowtitle=str):
@@ -83,7 +94,7 @@ class Ui_MayaController(Ui_info):
         filepath.replace("\\","/")
         windowName=cmds.loadUI(uiFile=filepath)
         cmds.showWindow(windowName)
-        return self.mWindowToQObject(windowName,QtWidgets.QWidget)
+        return MTL.mWindowToQObject(windowName,QtWidgets.QWidget)
 
     #create Ws PICKER
     def uiCreatePICKER(self,wsName=str,wsTitle=str,uifilePath=str):
@@ -96,7 +107,7 @@ class Ui_MayaController(Ui_info):
         if cmds.pluginInfo("METALEEPICKER",q=True,l=True):
             path=cmds.pluginInfo("METALEEPICKER",q=True,p=True)
             path=str(path).replace("plug-ins/METALEEPICKER.mll","src/METALEEPICKER.ui")
-            print(path)
+            #print(path)
 
             return path
         else: 
@@ -105,14 +116,17 @@ class Ui_MayaController(Ui_info):
 
     def __PluginsIsLoaded(self):
         return cmds.pluginInfo("METALEEPICKER",q=True,l=True)
+
+
+
 mCTRL=Ui_MayaController()
 mCTRL.Ui_PathFile()
-mTab=mCTRL.mWindowToQObject("mainTab",QtWidgets.QWidget)
+mTab=MTL.mWindowToQObject("mainTab",QtWidgets.QWidget)
 gView=MTL_View(mTab,"abc")
 hLayout=mTab.findChild(QtWidgets.QHBoxLayout,"leeGraphics")
 hLayout.addWidget(gView)
 
-
+MTL.info("bbb")
 
 # aScene=QtWidgets.QGraphicsScene()
 # aut=QtGui.QImage("C:/Users/LeePhan/Documents/GitHub/pickerLeeMTV/icon/author1")
