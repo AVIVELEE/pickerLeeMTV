@@ -44,7 +44,10 @@ class Ui_MayaController(Ui_info):
             self.uiCreatePICKER(inf.ws,inf.wstitle,self.Ui_PathFile())
         else : 
             cmds.loadPlugin("C:/Users/%s/Documents/GitHub/pickerLeeMTV/plug-ins/METALEEPICKER"%self.user)
-            self.uiCreatePICKER(inf.ws,inf.wstitle,self.Ui_PathFile())
+            #self.uiCreatePICKER(inf.ws,inf.wstitle,self.Ui_PathFile())
+            cmd="Ui_MayaController().uiCreatePICKER(%s,%s,%s)"%(`inf.ws`,`inf.wstitle`,`Ui_MayaController().Ui_PathFile()`)
+            print("Info : %s"%cmd)
+            cmds.evalDeferred(cmd,low=10)
             return cmds.error("# METALEE : METALEEPICKER Plugin is'nt loaeded #")
     #create maya workspaceControl window
     def workspaceCreate(self,wSpaceName=str,windowtitle=str):

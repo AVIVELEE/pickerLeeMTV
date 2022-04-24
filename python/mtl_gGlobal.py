@@ -5,6 +5,7 @@ if "Maya" in QApplication.applicationName():
     import maya.cmds as cmds
     import maya.OpenMayaUI as mui
 from shiboken2 import wrapInstance
+from mtl_gItem import mtl_GraphicsItem
 
 class mtlGlobal:
     def __init__(self):
@@ -30,3 +31,9 @@ class mtlGlobal:
     def info(self,message):
         print("#META LEE : %s"%message)
         print("#META LEE : updated")
+
+    def createItem(self,mScene=QGraphicsScene):
+        item=mtl_GraphicsItem()
+        if mScene: 
+            mScene.addItem(item)
+            item.iPng="C:/Users/LeePhan/Downloads/ceo.png"

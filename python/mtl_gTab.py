@@ -1,4 +1,5 @@
-import imp
+from cmath import rect
+from multiprocessing import Event
 import maya.cmds as cmds
 from PySide2.QtWidgets import *
 from PySide2.QtCore import *
@@ -26,31 +27,43 @@ MTL=mtlGlobal()
 
 
 class MTL_View(QGraphicsView):
+    gScenePos=QPoint()
+    gCursor=QPoint()
     def __init__(self,parent,name):
         #self.setScene(self._scene)
         QGraphicsView.__init__(self,parent,name)
+        self.rubberband=QRubberBand(QRubberBand.Rectangle,self)
+        self.origin=QPoint()
         aut=QImage("C:/Users/LeePhan/Documents/GitHub/pickerLeeMTV/icon/author1")
         self._scene=MTL_Scene()
         self.setScene(self._scene)
         #self._scene.setBackgroundBrush(aut)
         self.isMidle=False
         self.isLock=False
+        self.isLeft=False
         #self.setMouseTracking(False)
         #self.installEventFilter(self)
-        self.setUpdatesEnabled(True)
+        #self.setUpdatesEnabled(True)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.setRubberBandSelectionMode(Qt.IntersectsItemBoundingRect)
         self.setContextMenuPolicy(Qt.NoContextMenu)
         self.setBackgroundBrush(aut)
-        #self.setCacheMode(QGraphicsView.CacheBackground)
+        self.setCacheMode(QGraphicsView.CacheBackground)
         self.setRubberBandSelectionMode(Qt.IntersectsItemShape)
-        self.setMouseTracking(True)
+        self.setContextMenuPolicy(Qt.NoContextMenu)
+        #self.setViewportUpdateMode(QGraphicsView.BoundingRectViewportUpdate)
         self.ToolBarConnection()
+        self.setOptimizationFlags(QGraphicsView.DontAdjustForAntialiasing
+                              | QGraphicsView.DontClipPainter
+                              | QGraphicsView.DontSavePainterState)
 
     def mouseMoveEvent(self,event=QMouseEvent):
         self.gCursor=event.pos()
         self.gScenePos=event.globalPos()
+        if self.rubberband.isVisible():
+            self.rubberband.setGeometry(
+                QRect(self.origin, event.pos()).normalized())
         #print("# METALEE : %d , 2log ->  %d #"%(decimal.Decimal(10),decimal.Decimal(5)))
         #print("Moving...")
         if self.gScenePos and self.isMidle and not self.isLock:
@@ -65,14 +78,21 @@ class MTL_View(QGraphicsView):
     #mouse press event
     def mousePressEvent(self,event=QMouseEvent):
         if event.button()==Qt.LeftButton:
-            MTL.info("press")
+            self.origin=event.pos()
+            selectedItem=self._scene.getNumberSelectedItem()
+            print("LOG : %d"%len(self._scene.selectedItems()))
+            if selectedItem ==0:
+                self.rubberband.show()
+            self.isLeft=True
+            print(self._scene.getNumberItem())
+
             #print("xyz : %s"%self._scene.selectedItems())
             # if self._scene.selectedItems() > 0:
             #     self.setMouseTracking(True)
             print("# METALEE : left clicked #")
             pass #print("# METALEE : left clicked %s #"%self.press)
         elif event.button()==Qt.RightButton:
-            item=self.creatFresh(event)
+            #item=self.creatFresh(event)
             pass #print("# METALEE : right clicked %s #"%self.press)
         elif event.button()==Qt.MidButton:
             self.gScenePos=event.screenPos()
@@ -82,24 +102,12 @@ class MTL_View(QGraphicsView):
         return QGraphicsView.mousePressEvent(self,event)   
         #on midle clicked 
     
-    def creatFresh(self,e=QMouseEvent):
-        mItem=mtl_GraphicsItem(iName="fresh",img="C:/Users/LeePhan/Documents/GitHub/pickerLeeMTV/icon/simple_geo/fresh.png",ID=10)
-        mItem.setTransformOriginPoint(mItem.iRect.center())
-        self._scene.addItem(mItem)
-        mItem.isOpacDown=True
-        mItem.setZValue(2)
-        mItem.iRect=QRect(0,0,100,100)
-        cent=e.pos()-QRect(0,0,100,100).center()
-        mItem.setPos(self.mapToScene(cent))
-        #mItem.mapFromScene(self.gCursor)
-        QTimer.singleShot(1000, lambda: self._scene.removeItem(mItem))
-
     #mouse release event
-    def mouseReleaseEvent(self,event):
+    def mouseReleaseEvent(self,event=QMouseEvent):
         if event.button()==Qt.LeftButton:
-            #self.setMouseTracking(False)
+            self.isLeft=False
             self.setDragMode(QGraphicsView.NoDrag)
-            print("# METALEE : left release. #")
+            self.rubberband.hide()
             pass 
         elif event.button() == Qt.RightButton:
             pass #print("# METALEE : right release #")
@@ -123,6 +131,18 @@ class MTL_View(QGraphicsView):
         #deltaS+=event.delta() > 0 ? 0.25 : -0.25
         return QGraphicsView.wheelEvent(self,event)
 
+    def creatFresh(self,e=QMouseEvent):
+        mItem=mtl_GraphicsItem(iName="fresh",img="C:/Users/LeePhan/Documents/GitHub/pickerLeeMTV/icon/simple_geo/fresh.png",ID=10)
+        mItem.setTransformOriginPoint(mItem.iRect.center())
+        self._scene.addItem(mItem)
+        mItem.isOpacDown=True
+        mItem.setZValue(2)
+        mItem.iRect=QRect(0,0,100,100)
+        cent=e.pos()-QRect(0,0,100,100).center()
+        mItem.setPos(self.mapToScene(cent))
+        #mItem.mapFromScene(self.gCursor)
+        QTimer.singleShot(1000, lambda: self._scene.removeItem(mItem))
+
     def ToolBarConnection(self):
         toolbar=MTL.mWindowToQObject("mainToolBar",QToolBar)
         aColor=MTL.findActionFromToolBar("metaCustomColor",toolbar)
@@ -130,8 +150,9 @@ class MTL_View(QGraphicsView):
         aColor.triggered.connect(MTL.ColorDialog)
 
     
-
+#region MTL Graphics Scene */
 class MTL_Scene(QGraphicsScene):
+    
     isLock=False
     def __init__(self,parent=QWidget,name=None):
         QGraphicsScene.__init__(self)
@@ -144,9 +165,14 @@ class MTL_Scene(QGraphicsScene):
         self.gView=self.parent()
         self.isMidle=False
         self.mouseGrabberItem()
-        item=mtl_GraphicsItem()
-        item.iRect=QRect(0,0,478,952)
-        self.addItem(item)
+        MTL.createItem(self)
+        # item=mtl_GraphicsItem()
+        # item.iPng="C:/Users/LeePhan/Downloads/ceo.png"
+        # self.addItem(item)
+        # #item.iBgrColor=Qt.cyan
+        # print(item.boundingRect())
+        # item.iBgrColor=Qt.cyan
+        
         #print("# METALEE : Scene is Created. #")
         #self.setColorAllItem()
         #self.setForegroundBrush(aut)
@@ -165,3 +191,10 @@ class MTL_Scene(QGraphicsScene):
                 if mtl: mtl.iBgrColor=newColor
         #mtl_Global.info("abc")
 
+    def getNumberItem(self):
+        return len(self.items())
+
+    def getNumberSelectedItem(self):
+        return len(self.selectedItems())
+
+#endregion */
